@@ -50,9 +50,20 @@ pub enum EditorWindowPlacement {
 ///         .run();
 /// }
 /// ```
-#[derive(Default)]
+ 
 pub struct EditorPlugin {
     pub window: EditorWindowPlacement,
+    pub enable_camera_controls: bool
+}
+
+impl Default for EditorPlugin {
+
+    fn default() -> Self {
+        Self {
+            window: EditorWindowPlacement::default(),
+            enable_camera_controls: true 
+        }
+    }
 }
 
 impl EditorPlugin {
@@ -103,6 +114,7 @@ impl Plugin for EditorPlugin {
         {
             use bevy_editor_pls_default_windows::add::AddWindow;
             use bevy_editor_pls_default_windows::assets::AssetsWindow;
+            use bevy_editor_pls_default_windows::doodads::DoodadsWindow;
             use bevy_editor_pls_default_windows::cameras::CameraWindow;
             use bevy_editor_pls_default_windows::debug_settings::DebugSettingsWindow;
             use bevy_editor_pls_default_windows::diagnostics::DiagnosticsWindow;
@@ -115,21 +127,28 @@ impl Plugin for EditorPlugin {
 
             app.add_editor_window::<HierarchyWindow>();
             app.add_editor_window::<AssetsWindow>();
+            app.add_editor_window::<DoodadsWindow>();
             app.add_editor_window::<InspectorWindow>();
             app.add_editor_window::<DebugSettingsWindow>();
             app.add_editor_window::<AddWindow>();
             app.add_editor_window::<DiagnosticsWindow>();
             app.add_editor_window::<RendererWindow>();
-            app.add_editor_window::<CameraWindow>();
+            
             app.add_editor_window::<ResourcesWindow>();
             app.add_editor_window::<SceneWindow>();
             app.add_editor_window::<GizmoWindow>();
             app.add_editor_window::<controls::ControlsWindow>();
 
+
+            if self.enable_camera_controls{
+                  app.add_editor_window::<CameraWindow>();
+             }
+
             app.add_plugins(bevy::pbr::wireframe::WireframePlugin);
 
-            app.insert_resource(controls::EditorControls::default_bindings())
+             app.insert_resource(controls::EditorControls::default_bindings())
                 .add_systems(Update, controls::editor_controls_system);
+           
 
             let mut internal_state = app.world.resource_mut::<editor::EditorInternalState>();
 
@@ -141,10 +160,14 @@ impl Plugin for EditorPlugin {
                 0.8,
                 egui_dock::Split::Below,
                 &[
-                    std::any::TypeId::of::<ResourcesWindow>(),
-                    std::any::TypeId::of::<AssetsWindow>(),
-                    std::any::TypeId::of::<DebugSettingsWindow>(),
-                    std::any::TypeId::of::<DiagnosticsWindow>(),
+                    std::any::TypeId::of::<DoodadsWindow>(),
+
+                    //hide other tabs for now 
+                  //  std::any::TypeId::of::<ResourcesWindow>(),
+                  //  std::any::TypeId::of::<AssetsWindow>(),
+
+                  //  std::any::TypeId::of::<DebugSettingsWindow>(),
+                  //  std::any::TypeId::of::<DiagnosticsWindow>(),
                 ],
             );
         }
