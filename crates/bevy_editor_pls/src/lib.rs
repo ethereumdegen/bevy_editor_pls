@@ -154,20 +154,24 @@ impl Plugin for EditorPlugin {
 
             let [game, _inspector] =
                 internal_state.split_right::<InspectorWindow>(egui_dock::NodeIndex::root(), 0.75);
-            let [game, _hierarchy] = internal_state.split_left::<HierarchyWindow>(game, 0.2);
+
+            let [game, _hierarchy] = internal_state.split_many(game, 0.2,  egui_dock::Split::Left, &[
+                std::any::TypeId::of::<HierarchyWindow>(),
+                 std::any::TypeId::of::<DoodadsWindow>()
+                ]);
             let [_game, _bottom] = internal_state.split_many(
                 game,
                 0.8,
                 egui_dock::Split::Below,
                 &[
-                    std::any::TypeId::of::<DoodadsWindow>(),
+                   // std::any::TypeId::of::<DoodadsWindow>(),
 
-                    //hide other tabs for now 
-                  //  std::any::TypeId::of::<ResourcesWindow>(),
-                  //  std::any::TypeId::of::<AssetsWindow>(),
+                  //hide other tabs for now 
+                   std::any::TypeId::of::<ResourcesWindow>(),
+                    std::any::TypeId::of::<AssetsWindow>(),
 
-                  //  std::any::TypeId::of::<DebugSettingsWindow>(),
-                  //  std::any::TypeId::of::<DiagnosticsWindow>(),
+                    std::any::TypeId::of::<DebugSettingsWindow>(),
+                    std::any::TypeId::of::<DiagnosticsWindow>(),
                 ],
             );
         }
