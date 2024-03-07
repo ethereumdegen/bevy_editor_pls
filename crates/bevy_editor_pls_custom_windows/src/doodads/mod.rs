@@ -27,18 +27,18 @@ use self::doodad::{DoodadComponent, DoodadPlugin, LoadedGltfAssets};
 use self::doodad_manifest::{DoodadDefinition, DoodadManifest, DoodadManifestResource};
 
 
-#[derive(Resource,Default)]
-pub struct DoodadToolState  {
-   pub selected: Option<DoodadDefinition> ,
-   
-}
 
-
+pub mod picking;
 mod doodad;
 mod doodad_manifest;
 
 
 
+#[derive(Resource,Default)]
+pub struct DoodadToolState  {
+   pub selected: Option<DoodadDefinition> ,
+   
+}
 
 #[derive(Event)]
  pub struct PlaceDoodadEvent {
@@ -351,13 +351,13 @@ pub fn handle_place_doodad_events(
     
    mut doodad_tool_resource: ResMut<DoodadToolState>,
  
-     mut contexts: EguiContexts,
+   //  mut contexts: EguiContexts,
 ) {
 
    
  
  
-   let egui_ctx = contexts.ctx_mut();
+   //let egui_ctx = contexts.ctx_mut();
    /*
     if egui_ctx.is_pointer_over_area() {
         return;

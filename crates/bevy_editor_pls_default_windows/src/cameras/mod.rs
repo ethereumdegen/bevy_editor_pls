@@ -92,8 +92,8 @@ impl EditorWindow for CameraWindow {
     }
 
     fn viewport_toolbar_ui(world: &mut World, mut cx: EditorWindowContext, ui: &mut egui::Ui) {
-        let state = cx.state_mut::<CameraWindow>().unwrap();
-        ui.menu_button(state.editor_cam.name(), |ui| {
+       let state = cx.state_mut::<CameraWindow>().unwrap();
+       /*  ui.menu_button(state.editor_cam.name(), |ui| {
             for camera in EditorCamKind::all() {
                 ui.horizontal(|ui| {
                     if ui.button(camera.name()).clicked() {
@@ -107,7 +107,7 @@ impl EditorWindow for CameraWindow {
                     }
                 });
             }
-        });
+        });*/
         ui.checkbox(&mut state.show_ui, "UI");
     }
 
@@ -141,7 +141,7 @@ impl EditorWindow for CameraWindow {
         );
     }
 }
-
+/*
 fn set_active_editor_camera_marker(world: &mut World, editor_cam: EditorCamKind) {
     let mut previously_active = world.query_filtered::<Entity, With<ActiveEditorCamera>>();
     let mut previously_active_iter = previously_active.iter(world);
@@ -170,7 +170,7 @@ fn set_active_editor_camera_marker(world: &mut World, editor_cam: EditorCamKind)
         }
     };
     world.entity_mut(entity).insert(ActiveEditorCamera);
-}
+}*/
 
 fn cameras_ui(ui: &mut egui::Ui, world: &mut World) {
     // let cameras = active_cameras.all_sorted();
@@ -325,10 +325,17 @@ fn configure_camera_custom(
 
     mut cam_query: Query<(Entity, &mut Camera), Without<ActiveEditorCamera>>,
 
+  editor: Res<Editor>
+
     ){
 
-    let Some((cam_entity ,_)) = cam_query.get_single().ok() else {return};
+    let Some((cam_entity , mut camera_config)) = cam_query.get_single_mut().ok() else {return};
 
+    let render_layers = RenderLayers::default().with(EDITOR_RENDER_LAYER);
+
+    let target = RenderTarget::Window(WindowRef::Entity(editor.window()));
+
+    camera_config.target = target.clone();
 
  
 
@@ -339,6 +346,7 @@ fn configure_camera_custom(
      .insert( HideInEditor {} )
        .insert( EditorCamera {} )
          .insert( EditorCamera3dFree {} )
+         .insert( render_layers )
         //    .insert( Ec3d )
 
 
@@ -388,12 +396,13 @@ fn toggle_editor_cam(
     }
 }
 
+ 
 /*
 
 
 maybe we find our original cam and make sure this work on it ? 
 */
-
+/*
 fn focus_selected(
     mut editor_events: EventReader<EditorEvent>,
     mut active_cam: Query<
@@ -488,7 +497,7 @@ fn focus_selected(
         info!("Focused on {} {}", len, noun);
     }
 }
-
+*/
 fn initial_camera_setup(
     mut has_decided_initial_cam: Local<bool>,
     mut was_positioned_3d: Local<bool>,

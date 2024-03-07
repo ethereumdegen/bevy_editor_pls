@@ -8,6 +8,10 @@ use anyhow::{Result,Context };
 
 use bevy_mod_sysfail::*;
 
+use bevy_mod_picking::prelude::*;
+
+//use bevy_mod_picking::prelude::{PickRaycastTarget, PickableBundle};
+
 use bevy::{
      gltf::{Gltf, GltfMesh, GltfNode},
      scene::SceneInstanceReady,
@@ -106,6 +110,11 @@ fn attach_models_to_doodads(
 	                loaded_model.named_scenes["Scene"].clone(), //add the scene.. the mesh   but we assume the transform is alrdy there
 	            )
 	            .insert(  name_comp )
+	            .insert(  PickableBundle::default() )
+	           // .insert(  PickRaycastTarget::default() )
+
+ 
+
 
 	        //    .insert(DoodadColliderMarker::default())
 	             ; //.id() ;
@@ -114,3 +123,5 @@ fn attach_models_to_doodads(
 		}
 
 }
+
+

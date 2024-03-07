@@ -33,7 +33,11 @@ bevy_mod_debugdump = "0.10"
 opener = "0.6.0"
 egui-gizmo.workspace = true
 
-bevy_mod_raycast = "0.17.0" 
+bevy_mod_picking = "0.18.0" 
+
+bevy_mod_raycast = { version= "0.17.0"    }
+
+
 serde = { version = "1", features = ["derive"] }
  
 

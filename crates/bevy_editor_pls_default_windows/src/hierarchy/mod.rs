@@ -62,11 +62,17 @@ impl EditorWindow for HierarchyWindow {
 
     fn app_setup(app: &mut bevy::prelude::App) {
         // picking::setup(app);
-        app.add_systems(PostUpdate, clear_removed_entites);
+        app.add_systems(PostUpdate, clear_removed_entites)
+         .add_systems(Update, clear_selection);
+
         // .add_system(handle_events);
 
         app.sub_app_mut(RenderApp)
-            .add_systems(ExtractSchedule, extract_wireframe_for_selected);
+            .add_systems(ExtractSchedule, extract_wireframe_for_selected)
+           
+
+
+            ;
     }
 }
 
@@ -261,3 +267,25 @@ fn rename_entity_ui(ui: &mut egui::Ui, rename_info: &mut RenameInfo, world: &mut
 
     TextEdit::store_state(ui.ctx(), id, edit_state);
 }
+
+
+ 
+ pub fn clear_selection(
+    mouse_input: Res<ButtonInput<MouseButton>>, //detect mouse click
+
+      mut editor: ResMut<Editor>,  
+) {
+
+   
+    let state = editor.window_state_mut::<HierarchyWindow>().unwrap();
+ 
+    
+
+    if !mouse_input. pressed(MouseButton::Right) {
+        return;
+    }
+ 
+    state.selected.clear();
+}
+
+
