@@ -13,6 +13,8 @@ use bevy::{
 
 
 use bevy_editor_pls_core::editor_window::{EditorWindow, EditorWindowContext};
+use bevy_editor_pls_core::Editor;
+use crate::placement::PlacementWindow;
 use crate::zones::ZoneResource;
 use bevy_inspector_egui::bevy_egui::EguiContexts;
 use bevy_inspector_egui::{   egui::{self, ScrollArea}};
@@ -260,7 +262,7 @@ fn load_doodad_models(
 
 }
  
- 
+  
 
 pub fn handle_place_doodad_events(
     mut commands : Commands,
@@ -272,8 +274,14 @@ pub fn handle_place_doodad_events(
      doodad_manifest_resource: Res<DoodadManifestResource>,
      doodad_manifest_assets: Res<Assets<DoodadManifest>>,
 
+    
+
 
 ) {
+
+
+     
+
 
     let Some(manifest_handle) = &doodad_manifest_resource.manifest else {
         println!("WARN: no doodad manifest file found");
@@ -338,9 +346,24 @@ pub fn handle_place_doodad_events(
     
     doodad_tool_resource: Res<DoodadToolState>,
  
-    mut contexts: EguiContexts,
+   // mut contexts: EguiContexts,
+
+        editor: Res<Editor>
 ) {
+
+
+  
+
+
  
+
+
+    let placement_window_state = editor.window_state::<PlacementWindow>().unwrap();
+    
+    let using_random_yaw = placement_window_state.randomize_yaw;
+    let random_scale_multiplier = placement_window_state.random_scale_multiplier;
+
+
 
     let selected_doodad_definition = &doodad_tool_resource.selected;
     

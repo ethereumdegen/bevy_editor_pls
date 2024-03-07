@@ -2,8 +2,7 @@
 //! Default windows for the editor
 
 use bevy::prelude::*;
-
-use placement::PlacementResource;
+ 
 use zones::{ZoneEvent, ZoneResource};
 
 pub mod add;
@@ -40,7 +39,7 @@ impl Plugin for StandardWindowsPlugin {
 
         .init_resource::<ZoneResource>() 
 
-         .init_resource::<PlacementResource>() 
+          
 
         .add_systems(Update, zones::handle_zone_events ) 
 
