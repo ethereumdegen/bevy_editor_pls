@@ -225,11 +225,13 @@ fn load_doodad_models(
                         .get( doodad_manifest_handle.id())
                         .unwrap();
 
+                        println!("loading gltfs 1 ");
+
                         for doodad_definition in &manifest.doodad_definitions {
 
                                 let model_path = &doodad_definition.model_path;
 
-                                let gltf_model_handle:Handle<Gltf> = asset_server.load("doodad_manifest.manifest.ron"   ) ;
+                                let gltf_model_handle:Handle<Gltf> = asset_server.load( model_path   ) ;
 
                                 loaded_gltf_resource.gltf_models.insert(model_path.clone(), gltf_model_handle); 
 
