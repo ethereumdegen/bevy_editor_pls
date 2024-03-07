@@ -67,7 +67,8 @@ fn pan_orbit_camera(
     };
 
     // change input mapping for orbit and panning here
-    let (mut pan_orbit, mut transform, projection) = query.single_mut();
+  //  let (mut pan_orbit, mut transform, projection) = query.single_mut();
+    let Some((mut pan_orbit, mut transform, projection)) = query.get_single_mut().ok() else {return} ;
 
     if !pan_orbit.enabled {
         //Prevent accumulation of irrelevant events

@@ -78,10 +78,8 @@ impl EditorWindow for DoodadsWindow {
           .add_systems(Startup, load_doodad_manifest)
           .add_systems(Update, load_doodad_models)
 
-          .add_systems(Update, update_place_doodads)
-          .add_systems(Update, reset_place_doodads)
-
-          .add_systems(Update, handle_place_doodad_events)
+       
+       
 
        ;
     }
@@ -257,7 +255,7 @@ fn load_doodad_models(
  
  
 
-fn handle_place_doodad_events(
+pub fn handle_place_doodad_events(
     mut commands : Commands,
 
     mut evt_reader: EventReader<PlaceDoodadEvent>
@@ -290,7 +288,7 @@ fn handle_place_doodad_events(
 }
 
 
- fn update_place_doodads(
+ pub fn update_place_doodads(
     mouse_input: Res<ButtonInput<MouseButton>>, //detect mouse click
 
     cursor_ray: Res<CursorRay>,
@@ -306,22 +304,23 @@ fn handle_place_doodad_events(
 
     let selected_doodad_definition = &doodad_tool_resource.selected;
  
-
+    
     if !mouse_input.just_pressed(MouseButton::Left) {
         return;
     }
-
-    let egui_ctx = contexts.ctx_mut();
+ println!("place doodad 2");
+  /*  let egui_ctx = contexts.ctx_mut();
     if egui_ctx.is_pointer_over_area() {
         return;
-    }
- 
+    }*/
  
     if let Some(cursor_ray) = **cursor_ray {
         if let Some((_intersection_entity, intersection_data)) =
             raycast.cast_ray(cursor_ray, &default()).first()
         {
             let hit_point = intersection_data.position();
+
+             println!("place doodad 3 {:?}", hit_point);
 
             //offset this by the world psn offset of the entity !? would need to query its transform ?  for now assume 0 offset.
             let hit_coordinates = Vec3::new(hit_point.x, hit_point.y, hit_point.z);
@@ -330,7 +329,8 @@ fn handle_place_doodad_events(
 
             if let Some(doodad_definition) =  selected_doodad_definition .clone() {
 
-                 
+                     println!("place doodad 4 {:?}", doodad_definition);
+
                  event_writer.send(PlaceDoodadEvent { 
                     position: hit_coordinates,
                     doodad_definition   
@@ -344,7 +344,7 @@ fn handle_place_doodad_events(
 
 
 
- fn reset_place_doodads(
+ pub fn reset_place_doodads(
     mouse_input: Res<ButtonInput<MouseButton>>, //detect mouse click
 
       
@@ -358,13 +358,14 @@ fn handle_place_doodad_events(
  
  
    let egui_ctx = contexts.ctx_mut();
-
+   /*
     if egui_ctx.is_pointer_over_area() {
         return;
     }
  
+    */
 
-    if !mouse_input.just_pressed(MouseButton::Right) {
+    if !mouse_input. pressed(MouseButton::Right) {
         return;
     }
  

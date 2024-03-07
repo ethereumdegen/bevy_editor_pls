@@ -56,7 +56,7 @@ fn camera_movement(
     time: Res<Time>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
 ) {
-    let (flycam, mut cam_transform) = cam.single_mut();
+    let Some((flycam, mut cam_transform)) = cam.get_single_mut().ok() else {return} ;
     if !flycam.enable_movement {
         return;
     }
@@ -74,9 +74,9 @@ fn camera_movement(
     }
 
     let speed = if keyboard_input.pressed(flycam.key_boost) {
-        20.0
+        200.0
     } else {
-        5.0
+        50.0
     };
 
     let movement =
@@ -93,7 +93,8 @@ fn camera_look(
     mut mouse_motion_event_reader: EventReader<MouseMotion>,
     mut query: Query<(&mut FlycamControls, &mut Transform)>,
 ) {
-    let (mut flycam, mut transform) = query.single_mut();
+      let Some((mut flycam, mut transform)) = query.get_single_mut().ok() else {return} ;
+ 
     if !flycam.enable_look || !mouse_input.pressed(MouseButton::Right) {
         //Prevent accumulation of irrelevant events
         mouse_motion_event_reader.clear();

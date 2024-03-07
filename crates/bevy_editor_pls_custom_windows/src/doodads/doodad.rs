@@ -98,12 +98,15 @@ fn attach_models_to_doodads(
 	            .get(model_handle)
 	            .context(format!("Could not load model handle for {}", model_name))?;
 
+	            let doodad_name_clone = doodad_name.clone();
+	            let name_comp = Name::new(doodad_name_clone);
 	        commands
 	            .entity(new_doodad_entity)
 	            .insert(
 	                loaded_model.named_scenes["Scene"].clone(), //add the scene.. the mesh   but we assume the transform is alrdy there
 	            )
-	           
+	            .insert(  name_comp )
+
 	        //    .insert(DoodadColliderMarker::default())
 	             ; //.id() ;
 

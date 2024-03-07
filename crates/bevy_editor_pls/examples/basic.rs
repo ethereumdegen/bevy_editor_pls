@@ -8,6 +8,7 @@ use bevy::{
     },
 };
 use bevy_editor_pls::prelude::*;
+use bevy_mod_raycast::DefaultRaycastingPlugin;
 
 fn main() {
     // enable wireframe rendering
@@ -23,6 +24,7 @@ fn main() {
             EditorPlugin::new(),
             FrameTimeDiagnosticsPlugin,
             EntityCountDiagnosticsPlugin,
+              DefaultRaycastingPlugin
         ))
         .add_systems(Startup, setup)
         .run();

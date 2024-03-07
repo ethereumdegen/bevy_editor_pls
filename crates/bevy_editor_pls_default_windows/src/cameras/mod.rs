@@ -45,7 +45,7 @@ pub struct CameraWindow;
 
 #[derive(Clone, Copy, PartialEq, Default)]
 pub enum EditorCamKind {
-    D2PanZoom,
+   // D2PanZoom,
     D3Free,
     #[default]
     D3PanOrbit,
@@ -54,15 +54,15 @@ pub enum EditorCamKind {
 impl EditorCamKind {
     fn name(self) -> &'static str {
         match self {
-            EditorCamKind::D2PanZoom => "2D (Pan/Zoom)",
+         //   EditorCamKind::D2PanZoom => "2D (Pan/Zoom)",
             EditorCamKind::D3Free => "3D (Free)",
             EditorCamKind::D3PanOrbit => "3D (Pan/Orbit)",
         }
     }
 
-    fn all() -> [EditorCamKind; 3] {
+    fn all() -> [EditorCamKind; 2] {
         [
-            EditorCamKind::D2PanZoom,
+           // EditorCamKind::D2PanZoom,
             EditorCamKind::D3Free,
             EditorCamKind::D3PanOrbit,
         ]
@@ -114,20 +114,24 @@ impl EditorWindow for CameraWindow {
     fn app_setup(app: &mut App) {
         app.init_resource::<PreviouslyActiveCameras>();
 
-        app.add_plugins(camera_2d_panzoom::PanCamPlugin)
-            .add_plugins(camera_3d_free::FlycamPlugin)
-            .add_plugins(camera_3d_panorbit::PanOrbitCameraPlugin)
-            .add_systems(
+        app
+            //.add_plugins(camera_2d_panzoom::PanCamPlugin)
+            //.add_plugins(camera_3d_free::FlycamPlugin)
+           // .add_plugins(camera_3d_panorbit::PanOrbitCameraPlugin)
+            /*.add_systems(
                 Update,
                 set_editor_cam_active
                     .before(camera_3d_panorbit::CameraSystem::EditorCam3dPanOrbit)
                     .before(camera_3d_free::CameraSystem::EditorCam3dFree)
                     .before(camera_2d_panzoom::CameraSystem::EditorCam2dPanZoom),
-            )
-            .add_systems(PreUpdate, toggle_editor_cam)
-            .add_systems(PreUpdate, focus_selected)
-            .add_systems(Update, initial_camera_setup);
-        app.add_systems(PreStartup, spawn_editor_cameras);
+            )*/
+          //  .add_systems(PreUpdate, toggle_editor_cam)
+
+           .add_systems(PreUpdate, configure_camera_custom)
+         //   .add_systems(PreUpdate, focus_selected)
+              //.add_systems(Update, initial_camera_setup)
+              ;
+       // app.add_systems(PreStartup, spawn_editor_cameras);
 
         app.add_systems(
             PostUpdate,
@@ -155,10 +159,7 @@ fn set_active_editor_camera_marker(world: &mut World, editor_cam: EditorCamKind)
     }
 
     let entity = match editor_cam {
-        EditorCamKind::D2PanZoom => {
-            let mut state = world.query_filtered::<Entity, With<EditorCamera2dPanZoom>>();
-            state.iter(world).next().unwrap()
-        }
+       
         EditorCamKind::D3Free => {
             let mut state = world.query_filtered::<Entity, With<EditorCamera3dFree>>();
             state.iter(world).next().unwrap()
@@ -214,6 +215,7 @@ fn spawn_editor_cameras(mut commands: Commands, editor: Res<Editor>) {
 
     let target = RenderTarget::Window(WindowRef::Entity(editor.window()));
 
+ 
     commands.spawn((
         Camera3dBundle {
             camera: Camera {
@@ -257,6 +259,7 @@ fn spawn_editor_cameras(mut commands: Commands, editor: Res<Editor>) {
         render_layers,
     ));
 
+ 
     commands.spawn((
         Camera2dBundle {
             camera: Camera {
@@ -276,7 +279,7 @@ fn spawn_editor_cameras(mut commands: Commands, editor: Res<Editor>) {
         Name::new("Editor Camera 2D Pan/Zoom"),
         NotInScene,
         render_layers,
-    ));
+    )); 
 }
 
 fn set_editor_cam_active(
@@ -312,14 +315,38 @@ fn set_editor_cam_active(
         editor_cam_3d_panorbit.0.is_active = active;
         editor_cam_3d_panorbit.1.enabled = active && editor.viewport_interaction_active();
     }
-    {
-        let mut q = editor_cameras.p2();
-        let mut editor_cam_2d_panzoom = q.single_mut();
-        let active = matches!(editor_cam, EditorCamKind::D2PanZoom) && editor.active();
-        editor_cam_2d_panzoom.0.is_active = active;
-        editor_cam_2d_panzoom.1.enabled = active && editor.viewport_interaction_active();
-    }
+    
 }
+
+
+
+fn configure_camera_custom(
+    mut commands: Commands,
+
+    mut cam_query: Query<(Entity, &mut Camera), Without<ActiveEditorCamera>>,
+
+    ){
+
+    let Some((cam_entity ,_)) = cam_query.get_single().ok() else {return};
+
+
+ 
+
+
+    commands.entity(cam_entity)
+    .insert( ActiveEditorCamera {} )
+    .insert( NotInScene {} )
+     .insert( HideInEditor {} )
+       .insert( EditorCamera {} )
+         .insert( EditorCamera3dFree {} )
+        //    .insert( Ec3d )
+
+
+
+    ;
+
+}
+
 
 #[derive(Resource, Default)]
 struct PreviouslyActiveCameras(HashSet<Entity>);
@@ -360,6 +387,12 @@ fn toggle_editor_cam(
         }
     }
 }
+
+/*
+
+
+maybe we find our original cam and make sure this work on it ? 
+*/
 
 fn focus_selected(
     mut editor_events: EventReader<EditorEvent>,
@@ -491,29 +524,17 @@ fn initial_camera_setup(
     if !*has_decided_initial_cam {
         let camera_state = editor.window_state_mut::<CameraWindow>().unwrap();
 
-        match (cam2d.is_some(), cam3d.is_some()) {
-            (true, false) => {
-                camera_state.editor_cam = EditorCamKind::D2PanZoom;
-                commands
-                    .entity(cameras.p0().single().0)
-                    .insert(ActiveEditorCamera);
-                *has_decided_initial_cam = true;
-            }
-            (false, true) => {
+        match (  cam3d.is_some()) {
+           
+            ( true) => {
                 camera_state.editor_cam = EditorCamKind::D3PanOrbit;
                 commands
                     .entity(cameras.p2().single().0)
                     .insert(ActiveEditorCamera);
                 *has_decided_initial_cam = true;
             }
-            (true, true) => {
-                camera_state.editor_cam = EditorCamKind::D3PanOrbit;
-                commands
-                    .entity(cameras.p2().single().0)
-                    .insert(ActiveEditorCamera);
-                *has_decided_initial_cam = true;
-            }
-            (false, false) => return,
+            
+            (  false) => return,
         }
     }
 

@@ -66,6 +66,8 @@ impl Plugin for EditorPlugin {
             app.add_plugins(EguiPlugin);
         }
 
+      
+
         let (window_entity, always_active) = match self.window {
             WindowRef::Primary => {
                 let entity = app
