@@ -1,0 +1,44 @@
+[package]
+name = "bevy_editor_pls_custom_windows"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description.workspace = true
+readme.workspace = true
+ 
+
+[features]
+highlight_changes = ["bevy-inspector-egui/highlight_changes"]
+ 
+
+[dependencies]
+bevy = { version = "0.13", default-features = false, features = [
+    "bevy_scene",
+    "bevy_text",
+    "bevy_ui",
+    "bevy_sprite",
+    "bevy_pbr",
+    "bevy_core_pipeline",
+] }
+bevy_editor_pls_default_windows.workspace = true
+bevy_editor_pls_core.workspace = true
+
+bevy-inspector-egui.workspace = true
+ 
+indexmap = "2"
+pretty-type-name = "1.0"
+bevy_mod_debugdump = "0.10"
+opener = "0.6.0"
+egui-gizmo.workspace = true
+
+bevy_mod_raycast = "0.17.0" 
+serde = { version = "1", features = ["derive"] }
+ ron = "0.8.1"
+
+
+ bevy_common_assets = {version="0.10.0", features= ["ron"]}
+
+ anyhow = "1.0 "
+ 
+bevy_mod_sysfail = "7"

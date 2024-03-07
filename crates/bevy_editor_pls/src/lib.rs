@@ -17,6 +17,7 @@ pub use egui;
 #[cfg(feature = "default_windows")]
 #[doc(inline)]
 pub use bevy_editor_pls_default_windows as default_windows;
+pub use bevy_editor_pls_custom_windows as custom_windows;
 
 /// Commonly used types and extension traits
 pub mod prelude {
@@ -114,7 +115,6 @@ impl Plugin for EditorPlugin {
         {
             use bevy_editor_pls_default_windows::add::AddWindow;
             use bevy_editor_pls_default_windows::assets::AssetsWindow;
-            use bevy_editor_pls_default_windows::doodads::DoodadsWindow;
             use bevy_editor_pls_default_windows::cameras::CameraWindow;
             use bevy_editor_pls_default_windows::debug_settings::DebugSettingsWindow;
             use bevy_editor_pls_default_windows::diagnostics::DiagnosticsWindow;
@@ -124,6 +124,10 @@ impl Plugin for EditorPlugin {
             use bevy_editor_pls_default_windows::renderer::RendererWindow;
             use bevy_editor_pls_default_windows::resources::ResourcesWindow;
             use bevy_editor_pls_default_windows::scenes::SceneWindow;
+
+
+            use bevy_editor_pls_custom_windows::doodads::DoodadsWindow;
+            use bevy_editor_pls_custom_windows::zones::ZoneWindow;
 
             app.add_editor_window::<HierarchyWindow>();
             app.add_editor_window::<AssetsWindow>();
@@ -136,6 +140,7 @@ impl Plugin for EditorPlugin {
             
             app.add_editor_window::<ResourcesWindow>();
             app.add_editor_window::<SceneWindow>();
+            app.add_editor_window::<ZoneWindow>();
             app.add_editor_window::<GizmoWindow>();
             app.add_editor_window::<controls::ControlsWindow>();
 
@@ -164,9 +169,7 @@ impl Plugin for EditorPlugin {
                 0.8,
                 egui_dock::Split::Below,
                 &[
-                   // std::any::TypeId::of::<DoodadsWindow>(),
-
-                  //hide other tabs for now 
+                   std::any::TypeId::of::<ZoneWindow>(),
                    std::any::TypeId::of::<ResourcesWindow>(),
                     std::any::TypeId::of::<AssetsWindow>(),
 

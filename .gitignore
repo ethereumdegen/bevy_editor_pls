@@ -1,2 +1,5 @@
 /Cargo.lock
 /target
+
+/assets/models/doodads/*
+/assets/doodad_manifest.ron
