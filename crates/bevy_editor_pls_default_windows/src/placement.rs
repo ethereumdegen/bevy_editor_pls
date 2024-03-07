@@ -54,8 +54,8 @@ impl EditorWindow for PlacementWindow {
         if ui
             .add(
                 egui::DragValue::new(&mut scale_mult)
-                    .clamp_range(0..=20)
-                    .speed(0.02),
+                    .clamp_range(0..=1)
+                    .speed(0.01),
             )
             .changed()
         {

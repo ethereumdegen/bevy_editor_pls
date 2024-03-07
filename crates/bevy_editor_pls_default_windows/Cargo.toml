@@ -35,7 +35,7 @@ bevy_mod_debugdump = "0.10"
 opener = "0.6.0"
 egui-gizmo.workspace = true
 
-
+rand = "0.8"
 
 bevy_mod_picking = "0.18.0" 
 

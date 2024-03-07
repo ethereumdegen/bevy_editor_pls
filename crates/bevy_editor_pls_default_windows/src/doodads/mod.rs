@@ -6,6 +6,7 @@ use bevy::{
 
 
 use bevy::prelude::*;
+use rand::Rng;
 
 
 use bevy::{
@@ -308,9 +309,19 @@ pub fn handle_place_doodad_events(
             continue
         } ;
 
-        let doodad_spawned = commands.spawn(SpatialBundle{
 
-            transform: Transform::from_xyz(position.x, position.y, position.z) ,
+        let mut transform = Transform::from_xyz(position.x, position.y, position.z);
+
+        if let Some(rot) = evt.rotation_euler {
+           transform = transform.with_rotation( Quat::from_euler(EulerRot::YXZ, rot.x, rot.y, rot.z))
+        }
+        if let Some(scale) = evt.scale {
+           transform = transform.with_scale( scale )
+        }
+
+
+        let doodad_spawned = commands.spawn(SpatialBundle{
+            transform ,
             ..default()
         })
 
@@ -357,12 +368,40 @@ pub fn handle_place_doodad_events(
 
  
 
-
+    // ------- compute our rotation and scale from placement properties 
     let placement_window_state = editor.window_state::<PlacementWindow>().unwrap();
     
     let using_random_yaw = placement_window_state.randomize_yaw;
     let random_scale_multiplier = placement_window_state.random_scale_multiplier;
 
+     let mut rng = rand::thread_rng();
+
+    let rotation_euler:Option<Vec3> = match using_random_yaw {
+
+        true =>{ 
+
+            let random_f32 = rng.gen_range(0.0..1.0);
+            Some( (random_f32*3.14,0.0,0.0) .into() ) 
+        },
+        false => None
+
+    };
+
+    let scale :Option<Vec3> = match random_scale_multiplier >= 0.001 {
+
+        true => {
+
+
+            let random_f32 = rng.gen_range(-1.0..1.0);
+            let random_scaled_f32 = 1.0 + random_scale_multiplier * random_f32;
+
+            Some((random_scaled_f32,random_scaled_f32,random_scaled_f32) .into()) 
+
+          },
+
+        false => None
+    };
+    // -------------------------
 
 
     let selected_doodad_definition = &doodad_tool_resource.selected;
@@ -372,11 +411,7 @@ pub fn handle_place_doodad_events(
     if !mouse_input.just_pressed(MouseButton::Left) {
         return;
     } 
-  /*  let egui_ctx = contexts.ctx_mut();
-    if egui_ctx.is_pointer_over_area() {
-        return;
-    }*/
- 
+  
     if let Some(cursor_ray) = **cursor_ray {
         if let Some((_intersection_entity, intersection_data)) =
             raycast.cast_ray(cursor_ray, &default()).first()
@@ -392,13 +427,13 @@ pub fn handle_place_doodad_events(
 
          
 
-                     println!("place doodad 4 {:?}", doodad_definition);
+                  //   println!("place doodad 4 {:?}", doodad_definition);
 
                  event_writer.send(PlaceDoodadEvent { 
                     position: hit_coordinates,
                     doodad_name: doodad_definition.name,
-                    rotation_euler: None,
-                    scale: None 
+                    rotation_euler,
+                    scale 
                  });
             
            
