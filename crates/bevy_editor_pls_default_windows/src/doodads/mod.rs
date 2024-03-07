@@ -13,7 +13,7 @@ use bevy::{
 
 
 use bevy_editor_pls_core::editor_window::{EditorWindow, EditorWindowContext};
-use bevy_editor_pls_default_windows::zones::ZoneResource;
+use crate::zones::ZoneResource;
 use bevy_inspector_egui::bevy_egui::EguiContexts;
 use bevy_inspector_egui::{   egui::{self, ScrollArea}};
 
@@ -30,7 +30,7 @@ use self::doodad_manifest::{DoodadDefinition, DoodadManifest, DoodadManifestReso
 
 
 pub mod picking;
-mod doodad;
+pub mod doodad;
 mod doodad_manifest;
 
 
@@ -39,15 +39,21 @@ mod doodad_manifest;
 pub struct DoodadToolState  {
    pub selected: Option<DoodadDefinition> ,
    
-}
+}  
+  
+
+
 
 #[derive(Event)]
  pub struct PlaceDoodadEvent {
+
     pub position: Vec3,
-    pub doodad_definition: DoodadDefinition
+    pub scale: Option<Vec3>,
+    pub rotation_euler: Option<Vec3> ,
+    pub doodad_name: String ,
+
+   // pub doodad_definition: DoodadDefinition
  }
-
-
  
 
 
@@ -69,7 +75,7 @@ impl EditorWindow for DoodadsWindow {
      /// Necessary setup (resources, systems) for the window.
     fn app_setup(app: &mut App) {
        app
-        .add_event::<PlaceDoodadEvent>()
+        
             .add_plugins(RonAssetPlugin::<DoodadManifest>::new(&["manifest.ron"]))
 
               .add_plugins( DoodadPlugin  )
@@ -261,9 +267,24 @@ pub fn handle_place_doodad_events(
 
     mut evt_reader: EventReader<PlaceDoodadEvent>,
 
-    zone_resource: Res<ZoneResource>
+    zone_resource: Res<ZoneResource>,
+
+     doodad_manifest_resource: Res<DoodadManifestResource>,
+     doodad_manifest_assets: Res<Assets<DoodadManifest>>,
+
 
 ) {
+
+    let Some(manifest_handle) = &doodad_manifest_resource.manifest else {
+        println!("WARN: no doodad manifest file found");
+        return
+    };
+
+    let Some(manifest) = doodad_manifest_assets.get(manifest_handle) else {
+        println!("WARN: no doodad manifest file found");
+        return
+    };
+
 
   
 
@@ -271,13 +292,21 @@ pub fn handle_place_doodad_events(
 
 
         let position = &evt.position;
+        let doodad_name = &evt.doodad_name;
+
+
+        let Some(doodad_definition) = manifest.get_doodad_definition_by_name( doodad_name ) else {
+            println!("WARN: Could not spawn doodad {:?}",doodad_name);
+            continue
+        } ;
+
         let doodad_spawned = commands.spawn(SpatialBundle{
 
             transform: Transform::from_xyz(position.x, position.y, position.z) ,
             ..default()
         })
 
-        .insert(DoodadComponent::from_definition( &evt.doodad_definition ))
+        .insert(DoodadComponent::from_definition( &doodad_definition ))
         .id();
 
         println!("doodad spawned {:?}", doodad_spawned);
@@ -344,7 +373,9 @@ pub fn handle_place_doodad_events(
 
                  event_writer.send(PlaceDoodadEvent { 
                     position: hit_coordinates,
-                    doodad_definition   
+                    doodad_name: doodad_definition.name,
+                    rotation_euler: None,
+                    scale: None 
                  });
             
            

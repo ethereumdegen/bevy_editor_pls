@@ -2,7 +2,9 @@ use bevy::prelude::*;
 use bevy_editor_pls_core::editor_window::{EditorWindow, EditorWindowContext};
 use bevy_inspector_egui::egui::{self, RichText};
 
+use std::path::Path;
 
+use crate::doodads::PlaceDoodadEvent;
 
 #[derive(Component)]
 pub struct ZoneComponent {
@@ -13,7 +15,9 @@ pub struct ZoneComponent {
 #[derive(Event)]
 pub enum ZoneEvent {
 	SetZoneAsPrimary(Entity),
-	ExportZone(Entity),
+	SaveZoneToFile(Entity),
+	CreateNewZone(String),
+	LoadZoneFile(String),
 	ResetPrimaryZone
 }
 
@@ -36,8 +40,9 @@ pub struct NotInScene;
 
 #[derive(Default)]
 pub struct ZoneWindowState {
-    filename: String,
-    zone_create_result: Option<Result<(), Box<dyn std::error::Error + Send + Sync>>>,
+    create_filename: String,
+    load_filename:String,
+    zone_create_result: Option< Result<(), Box<dyn std::error::Error + Send + Sync>>>,
 }
 
 pub struct ZoneWindow;
@@ -62,11 +67,12 @@ impl EditorWindow for ZoneWindow {
 			});
 
 
+
 		 //create zone 
 	        ui.horizontal(|ui| { 
 
 
-	               let res = egui::TextEdit::singleline(&mut state.filename)
+	               let res = egui::TextEdit::singleline(&mut state.create_filename)
 	                .hint_text(DEFAULT_FILENAME)
 	                .desired_width(120.0)
 	                .show(ui);
@@ -80,14 +86,45 @@ impl EditorWindow for ZoneWindow {
 	            let enter_pressed = ui.input(|input| input.key_pressed(egui::Key::Enter));
 
 	            if ui.button("Create Zone").clicked() || enter_pressed {
-	                let filename = if state.filename.is_empty() {
+	                let create_filename = if state.create_filename.is_empty() {
 	                    DEFAULT_FILENAME
 	                } else {
-	                    &state.filename
+	                    &state.create_filename
 	                };
 	                let mut query = world.query_filtered::<Entity, Without<NotInScene>>();
-	                let entitys = query.iter(world).collect();
-	                state.zone_create_result = Some(create_zone(world, filename, entitys));
+	               // let entitys = query.iter(world).collect();
+	                state.zone_create_result = Some(create_zone(world , create_filename));
+	            }
+
+	        });
+
+
+
+	           ui.horizontal(|ui| { 
+
+
+	               let res = egui::TextEdit::singleline(&mut state.load_filename)
+	                .hint_text(DEFAULT_FILENAME)
+	                .desired_width(120.0)
+	                .show(ui);
+
+
+
+	            if res.response.changed() {
+	                state.zone_create_result = None;
+	            }
+
+	            let enter_pressed = ui.input(|input| input.key_pressed(egui::Key::Enter));
+
+	            if ui.button("Load Zone").clicked() || enter_pressed {
+	                let load_filename = if state.load_filename.is_empty() {
+	                    DEFAULT_FILENAME
+	                } else {
+	                    &state.load_filename
+	                };
+	                let mut query = world.query_filtered::<Entity, Without<NotInScene>>();
+	               // let entitys = query.iter(world).collect();
+	                state.zone_create_result = Some(load_zone(world, load_filename));
 	            }
 
 	        })
@@ -113,39 +150,44 @@ impl EditorWindow for ZoneWindow {
 
 
 fn create_zone(
+  //  world: &mut World,
+   world: &mut World,
+    name: &str,
+   
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>>{
+
+	 world.send_event::<ZoneEvent>(
+     	ZoneEvent::CreateNewZone(name.into()));
+    
+   Ok(())
+}
+
+
+fn load_zone(
     world: &mut World,
     name: &str,
-    entities: std::collections::HashSet<Entity>,
+   
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    
-   let zone = world.spawn(SpatialBundle::default())
-   .insert(ZoneComponent{})
-   .insert(Name::new( name.to_string() ))
-   .id();
-
-   /*
-    let type_registry = world.get_resource::<AppTypeRegistry>().unwrap();
-    let mut scene_builder = DynamicSceneBuilder::from_world(world);
-    scene_builder = scene_builder.extract_entities(entities.into_iter());
-    let scene = scene_builder.build();
-
-    let ron = scene.serialize_ron(type_registry)?;
-    std::fs::write(name, ron)?;
-    */
+     
+     world.send_event::<ZoneEvent>(
+     	ZoneEvent::LoadZoneFile(name.into()));
+  
     Ok(())
 }
 
 
 pub fn handle_zone_events( 
 
-
+	mut commands: Commands,
   mut evt_reader: EventReader<ZoneEvent>,
 
   mut zone_resource: ResMut<ZoneResource>,
 
   children_query: Query<&Children, With<Name> >,
 
-  zone_entity_query: Query<( &Name, &Transform)>
+  zone_entity_query: Query<( &Name, &Transform)>,
+
+  mut spawn_doodad_event_writer: EventWriter<PlaceDoodadEvent>
 
  ){
 
@@ -155,6 +197,16 @@ pub fn handle_zone_events(
 
 
   match evt {
+    ZoneEvent::CreateNewZone(name) => {
+
+		   let created_zone = commands.spawn(SpatialBundle::default())
+		   .insert(ZoneComponent{})
+		   .insert(Name::new( name.to_string() ))
+		   .id();
+
+  		  zone_resource.primary_zone = Some( created_zone );
+    }
+
     ZoneEvent::SetZoneAsPrimary(ent) =>  {
 
     	zone_resource.primary_zone = Some(ent.clone());
@@ -163,7 +215,7 @@ pub fn handle_zone_events(
     ZoneEvent::ResetPrimaryZone => {
     	zone_resource.primary_zone = None; 
     },
-    ZoneEvent::ExportZone(ent) => {
+    ZoneEvent::SaveZoneToFile(ent) => {
 
     	let Some((zone_name_comp, _ )) = zone_entity_query.get(ent.clone()).ok() else {return};
 
@@ -175,9 +227,7 @@ pub fn handle_zone_events(
     		all_children.push(child);
     	}
 
-    	 
-
-    	//find all children ?? 
+    	  
 
     	let zone_file = ZoneFile::new(all_children,&zone_entity_query);
 
@@ -193,6 +243,48 @@ pub fn handle_zone_events(
 
 
     },
+
+     ZoneEvent::LoadZoneFile(zone_name) => {	
+
+     	let file_name = format!("{}.zone.ron", zone_name);
+
+     	 let path = Path::new(&file_name);
+
+	    // Read the file into a string
+	    let file_content = std::fs::read_to_string(path).expect("Failed to read zone file");
+
+	    // Deserialize the string into ZoneFile
+	    let zone_file: ZoneFile = ron::from_str(&file_content).expect("Failed to deserialize zone file");
+
+
+	    //spawnn the zone entity and set it as primary 
+
+	    let created_zone = commands.spawn(SpatialBundle::default())
+			   .insert(ZoneComponent{})
+			   .insert(Name::new( zone_name.to_string() ))
+			   .id();
+
+		zone_resource.primary_zone = Some( created_zone );
+
+	    //trigger spawn doodad events 
+
+	    for zone_entity in zone_file.entities {
+
+	    	spawn_doodad_event_writer.send({
+
+	    		PlaceDoodadEvent{
+	    			doodad_name: zone_entity.name .clone(),
+	    			position: zone_entity.get_position(),
+	    			rotation_euler: Some(zone_entity.get_rotation_euler()),
+	    			scale: Some(zone_entity.get_scale())
+
+	    		}
+
+	    	});
+
+	    }
+
+     }
 
 }
 

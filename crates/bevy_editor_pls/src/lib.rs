@@ -14,14 +14,13 @@ use bevy::{
 pub use bevy_editor_pls_core::egui_dock;
 #[doc(inline)]
 pub use bevy_editor_pls_core::{editor, editor_window, AddEditorWindow};
-use custom_windows::CustomWindowsPlugin;
+ 
 use default_windows::{placement::PlacementWindow, StandardWindowsPlugin};
 pub use egui;
 
 #[cfg(feature = "default_windows")]
 #[doc(inline)]
-pub use bevy_editor_pls_default_windows as default_windows;
-pub use bevy_editor_pls_custom_windows as custom_windows;
+pub use bevy_editor_pls_default_windows as default_windows; 
 
 /// Commonly used types and extension traits
 pub mod prelude {
@@ -111,8 +110,7 @@ impl Plugin for EditorPlugin {
         app
         .add_plugins(bevy_editor_pls_core::EditorPlugin { window });
 
-
-        app.add_plugins(CustomWindowsPlugin{} ) ;
+ 
          app.add_plugins(StandardWindowsPlugin {} ) ;
 
          
@@ -137,7 +135,7 @@ impl Plugin for EditorPlugin {
             use bevy_editor_pls_default_windows::scenes::SceneWindow;
 
 
-            use bevy_editor_pls_custom_windows::doodads::DoodadsWindow;
+            use bevy_editor_pls_default_windows::doodads::DoodadsWindow;
             use bevy_editor_pls_default_windows::zones::ZoneWindow;
 
             app.add_editor_window::<HierarchyWindow>();

@@ -9,7 +9,7 @@ use bevy::prelude::*;
 pub struct ZoneFile {
 
 
-	entities: Vec<ZoneEntity>
+	pub entities: Vec<ZoneEntity>
 
 }
 
@@ -56,9 +56,9 @@ impl ZoneFile {
 pub struct ZoneEntity{
 
 
-	name: String,
+	pub name: String,
 
-	transform: TransformSimple,
+	pub transform: TransformSimple,
 
 
 	// custom properties ? 
@@ -67,6 +67,18 @@ pub struct ZoneEntity{
 
 
 impl ZoneEntity {
+
+	pub fn get_position(&self) -> Vec3 {
+		self.transform.translation
+	}
+
+	pub fn get_rotation_euler(&self) -> Vec3 {
+		self.transform.rotation		
+	}
+
+	pub fn get_scale(&self) -> Vec3 {
+		self.transform.scale
+	}
 
 	fn from_entity(entity: Entity,zone_entity_query:&Query<(&Name,&Transform)>) -> Option<Self> {
 		 

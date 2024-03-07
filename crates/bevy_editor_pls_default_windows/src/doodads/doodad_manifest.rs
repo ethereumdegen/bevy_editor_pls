@@ -21,6 +21,29 @@ pub struct DoodadManifest {
 
 }
 
+
+impl DoodadManifest {
+
+
+    pub fn get_doodad_definition_by_name(&self,name: &str) -> Option<DoodadDefinition> {
+
+        //maybe use a hashmap for this ? 
+        for doodad_definition in &self.doodad_definitions {
+
+            if doodad_definition.name == name {
+                return Some(doodad_definition.clone())
+            }
+
+        }
+
+
+        None 
+
+
+    }
+
+}
+
 #[derive(Component,Clone, Debug , Serialize, Deserialize )]
 pub struct DoodadDefinition{
 

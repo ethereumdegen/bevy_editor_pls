@@ -4,7 +4,7 @@
 
 use bevy::{input::keyboard::KeyboardInput, prelude::*};
 use bevy_editor_pls_core::Editor;
-use bevy_editor_pls_default_windows::hierarchy::HierarchyWindow;
+use crate::hierarchy::HierarchyWindow;
 use bevy_inspector_egui::bevy_egui::EguiContexts;
 use bevy_mod_raycast::{immediate::Raycast, CursorRay};
 
