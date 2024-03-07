@@ -103,6 +103,7 @@ fn attach_models_to_doodads(
 	            .insert(
 	                loaded_model.named_scenes["Scene"].clone(), //add the scene.. the mesh   but we assume the transform is alrdy there
 	            )
+	           
 	        //    .insert(DoodadColliderMarker::default())
 	             ; //.id() ;
 

@@ -9,6 +9,9 @@ use bevy::{
     window::{MonitorSelection, Window, WindowPosition, WindowRef, WindowResolution},
 };
 
+ use bevy_mod_raycast::DefaultRaycastingPlugin;
+
+
 pub use bevy_editor_pls_core::egui_dock;
 #[doc(inline)]
 pub use bevy_editor_pls_core::{editor, editor_window, AddEditorWindow};
@@ -104,7 +107,10 @@ impl Plugin for EditorPlugin {
             EditorWindowPlacement::Primary => WindowRef::Primary,
         };
 
-        app.add_plugins(bevy_editor_pls_core::EditorPlugin { window });
+        app
+        .add_plugins(bevy_editor_pls_core::EditorPlugin { window })
+
+          .add_plugins(DefaultRaycastingPlugin) ;
 
         // if !app.is_plugin_added::<bevy_framepace::FramepacePlugin>() {
         //     app.add_plugins(bevy_framepace::FramepacePlugin);
