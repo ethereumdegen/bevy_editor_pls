@@ -58,6 +58,11 @@ pub struct PreventPicking {}
     if key_input.pressed(KeyCode::ShiftLeft) {
         return ; 
     }
+
+    //must deselect w right click first 
+     if !state.selected.is_empty() {
+        return ; 
+    }
  
    
  
