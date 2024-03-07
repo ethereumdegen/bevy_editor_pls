@@ -13,6 +13,7 @@ use bevy::{
 
 
 use bevy_editor_pls_core::editor_window::{EditorWindow, EditorWindowContext};
+use bevy_editor_pls_default_windows::zones::ZoneResource;
 use bevy_inspector_egui::bevy_egui::EguiContexts;
 use bevy_inspector_egui::{   egui::{self, ScrollArea}};
 
@@ -258,9 +259,13 @@ fn load_doodad_models(
 pub fn handle_place_doodad_events(
     mut commands : Commands,
 
-    mut evt_reader: EventReader<PlaceDoodadEvent>
+    mut evt_reader: EventReader<PlaceDoodadEvent>,
+
+    zone_resource: Res<ZoneResource>
 
 ) {
+
+  
 
     for evt in evt_reader.read()  {
 
@@ -276,6 +281,12 @@ pub fn handle_place_doodad_events(
         .id();
 
         println!("doodad spawned {:?}", doodad_spawned);
+ 
+        if let Some(primary_zone) = &zone_resource.primary_zone {
+            if let Some( mut  ent) = commands.get_entity(primary_zone.clone()) {
+                ent.add_child(doodad_spawned);
+            }
+        }
 
 
 
@@ -303,12 +314,12 @@ pub fn handle_place_doodad_events(
  
 
     let selected_doodad_definition = &doodad_tool_resource.selected;
- 
+    
+    let Some(doodad_definition) =  selected_doodad_definition .clone() else {return};
     
     if !mouse_input.just_pressed(MouseButton::Left) {
         return;
-    }
- println!("place doodad 2");
+    } 
   /*  let egui_ctx = contexts.ctx_mut();
     if egui_ctx.is_pointer_over_area() {
         return;
@@ -320,14 +331,14 @@ pub fn handle_place_doodad_events(
         {
             let hit_point = intersection_data.position();
 
-             println!("place doodad 3 {:?}", hit_point);
+            
 
             //offset this by the world psn offset of the entity !? would need to query its transform ?  for now assume 0 offset.
             let hit_coordinates = Vec3::new(hit_point.x, hit_point.y, hit_point.z);
 
             //use an event to pass the entity and hit coords to the terrain plugin so it can edit stuff there
 
-            if let Some(doodad_definition) =  selected_doodad_definition .clone() {
+         
 
                      println!("place doodad 4 {:?}", doodad_definition);
 
@@ -335,7 +346,7 @@ pub fn handle_place_doodad_events(
                     position: hit_coordinates,
                     doodad_definition   
                  });
-            }
+            
            
         }
     }

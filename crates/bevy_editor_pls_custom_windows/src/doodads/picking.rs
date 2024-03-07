@@ -55,9 +55,9 @@ pub struct PreventPicking {}
 
 
     //shift mutes doodad selection so you can use the gizmo  
-    if key_input.pressed(KeyCode::ShiftLeft) {
+   /* if key_input.pressed(KeyCode::ShiftLeft) {
         return ; 
-    }
+    }*/
 
     //must deselect w right click first 
      if !state.selected.is_empty() {

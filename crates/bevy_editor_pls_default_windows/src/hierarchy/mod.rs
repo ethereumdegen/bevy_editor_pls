@@ -1,5 +1,7 @@
 // pub mod picking;
 
+use std::any::Any;
+
 use bevy::ecs::entity::Entities;
 use bevy::pbr::wireframe::Wireframe;
 use bevy::prelude::*;
@@ -20,6 +22,7 @@ use bevy_editor_pls_core::{
 use crate::add::{add_ui, AddWindow, AddWindowState};
 use crate::debug_settings::DebugSettingsWindow;
 use crate::inspector::{InspectorSelection, InspectorWindow};
+use crate::zones::{ZoneComponent, ZoneEvent};
 
 #[derive(Component)]
 pub struct HideInEditor;
@@ -164,6 +167,13 @@ impl<'a> Hierarchy<'a> {
             type_registry: self.type_registry,
             selected,
             context_menu: Some(&mut |ui, entity, world, rename_info| {
+
+
+                let entity_is_zone = world.entity(entity).get::<ZoneComponent>().is_some() ;
+
+
+
+
                 if ui.button("Despawn").clicked() {
                     despawn_recursive = Some(entity);
                 }
@@ -180,6 +190,18 @@ impl<'a> Hierarchy<'a> {
                         current_rename: entity_name,
                     });
                     ui.close_menu();
+                }
+
+                if entity_is_zone {
+                       if ui.button("Set as primary zone").clicked() {
+                          world.send_event::<ZoneEvent>( ZoneEvent::SetZoneAsPrimary( entity ).into()  ) ;
+                             ui.close_menu();
+                        }
+                        if ui.button("Export zone").clicked() {
+                             world.send_event::<ZoneEvent>( ZoneEvent::ExportZone( entity ).into()  ) ;
+                             ui.close_menu();
+                            
+                        }
                 }
 
                 if let Some(add_state) = self.add_state {

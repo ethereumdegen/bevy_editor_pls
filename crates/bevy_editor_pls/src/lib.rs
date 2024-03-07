@@ -14,6 +14,8 @@ use bevy::{
 pub use bevy_editor_pls_core::egui_dock;
 #[doc(inline)]
 pub use bevy_editor_pls_core::{editor, editor_window, AddEditorWindow};
+use custom_windows::CustomWindowsPlugin;
+use default_windows::{placement::PlacementWindow, StandardWindowsPlugin};
 pub use egui;
 
 #[cfg(feature = "default_windows")]
@@ -109,6 +111,10 @@ impl Plugin for EditorPlugin {
         app
         .add_plugins(bevy_editor_pls_core::EditorPlugin { window });
 
+
+        app.add_plugins(CustomWindowsPlugin{} ) ;
+         app.add_plugins(StandardWindowsPlugin {} ) ;
+
          
 
         // if !app.is_plugin_added::<bevy_framepace::FramepacePlugin>() {
@@ -132,7 +138,7 @@ impl Plugin for EditorPlugin {
 
 
             use bevy_editor_pls_custom_windows::doodads::DoodadsWindow;
-            use bevy_editor_pls_custom_windows::zones::ZoneWindow;
+            use bevy_editor_pls_default_windows::zones::ZoneWindow;
 
             app.add_editor_window::<HierarchyWindow>();
             app.add_editor_window::<AssetsWindow>();
@@ -147,6 +153,7 @@ impl Plugin for EditorPlugin {
             app.add_editor_window::<SceneWindow>();
             app.add_editor_window::<ZoneWindow>();
             app.add_editor_window::<GizmoWindow>();
+              app.add_editor_window::<PlacementWindow>();
             app.add_editor_window::<controls::ControlsWindow>();
 
 
@@ -162,8 +169,12 @@ impl Plugin for EditorPlugin {
 
             let mut internal_state = app.world.resource_mut::<editor::EditorInternalState>();
 
-            let [game, _inspector] =
-                internal_state.split_right::<InspectorWindow>(egui_dock::NodeIndex::root(), 0.75);
+            let root_node = egui_dock::NodeIndex::root();
+            let [game, _inspector] =  internal_state.split_many(root_node, 0.75,  egui_dock::Split::Right, &[
+                std::any::TypeId::of::<InspectorWindow>(),
+                 std::any::TypeId::of::<PlacementWindow>()
+                ]);
+             //   internal_state.split_right::<InspectorWindow>(egui_dock::NodeIndex::root(), 0.75);
 
             let [game, _hierarchy] = internal_state.split_many(game, 0.2,  egui_dock::Split::Left, &[
                 std::any::TypeId::of::<HierarchyWindow>(),

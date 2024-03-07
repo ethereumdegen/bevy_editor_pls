@@ -7,7 +7,6 @@ use doodads::{update_place_doodads,reset_place_doodads,handle_place_doodad_event
  use doodads::picking::{update_picking_doodads, SelectDoodadEvent};
 
 pub mod doodads;
-pub mod zones; 
 
 pub struct CustomWindowsPlugin {
     
