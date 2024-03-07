@@ -55,12 +55,21 @@ impl EditorWindow for ZoneWindow {
         let state = cx.state_mut::<ZoneWindow>().unwrap();
 
         let zone_resource = world.resource::<ZoneResource>();
-        let primary_zone = zone_resource.primary_zone;
+        let primary_zone_entity = zone_resource.primary_zone;
+
+         let primary_zone_name = primary_zone_entity
+        .and_then(|ent| {
+            // Temporarily fetch the component to avoid holding the borrow
+            world.get::<Name>(ent).map(|n| n.as_str().to_owned())
+        })
+        .unwrap_or_else(|| "None".to_owned());
+
+      
 
 		 ui.vertical(|ui| {
 
 		 	 ui.horizontal(|ui| {
-				 ui.label( format!("Primary zone: {:?}", primary_zone   )) ;
+				 ui.label( format!("Primary zone: {:?}", primary_zone_name.clone()   )) ;
 				  if ui.button("Reset").clicked()   {
 				  		world.send_event::<ZoneEvent>( ZoneEvent::ResetPrimaryZone ) ;
 				  }
@@ -251,10 +260,16 @@ pub fn handle_zone_events(
      	 let path = Path::new(&file_name);
 
 	    // Read the file into a string
-	    let file_content = std::fs::read_to_string(path).expect("Failed to read zone file");
+	    let Ok(file_content) = std::fs::read_to_string(path) else {
+	    	println!("Could not find file {:?}",file_name);
+	    	return
+	    };
 
 	    // Deserialize the string into ZoneFile
-	    let zone_file: ZoneFile = ron::from_str(&file_content).expect("Failed to deserialize zone file");
+	    let Ok(zone_file)  = ron::from_str::<ZoneFile>(&file_content) else {
+	    	println!("Could not parse file {:?}",file_name);
+	    	return
+	    };
 
 
 	    //spawnn the zone entity and set it as primary 

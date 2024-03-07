@@ -16,7 +16,7 @@ pub struct SelectDoodadEvent {
 }
 
 #[derive(Component)]
-pub struct PreventPicking {}
+pub struct PreventEditorSelection {}
 
 
 
@@ -38,7 +38,7 @@ pub struct PreventPicking {}
 
    mut editor: ResMut<Editor>,  
 
-   unpickable_query: Query<&PreventPicking >,
+   unpickable_query: Query<&PreventEditorSelection >,
    doodad_comp_query: Query<&DoodadComponent> ,
    parent_query: Query<&Parent> ,
 
@@ -73,9 +73,12 @@ pub struct PreventPicking {}
             let hit_point = intersection_data.position(); 
 
 
-             println!("select doodad   {:?}", hit_point); 
+            
 
-
+                if unpickable_query.get( *intersection_entity ).ok().is_some(){
+                    println!("This entity is marked as non-selectable");
+                    return 
+                }
            
 
 
@@ -83,6 +86,7 @@ pub struct PreventPicking {}
  				for parent_entity in AncestorIter::new(&parent_query, *intersection_entity) {
 
                          if unpickable_query.get( parent_entity ).ok().is_some(){
+                            println!("This entity is marked as non-selectable");
                             return 
                          }
 
@@ -93,6 +97,7 @@ pub struct PreventPicking {}
 
  						} 
  				}
+                 println!("select doodad   {:?}", hit_point); 
 
 
  				let focus_entity = top_doodad_comp_parent_entity.unwrap_or( intersection_entity.clone()  );
