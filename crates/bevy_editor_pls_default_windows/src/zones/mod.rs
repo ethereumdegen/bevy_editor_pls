@@ -23,6 +23,9 @@ pub struct ZoneResource {
 
 }
 
+mod zone_file;
+
+use zone_file::ZoneFile;
 
 
 
@@ -138,7 +141,11 @@ pub fn handle_zone_events(
 
   mut evt_reader: EventReader<ZoneEvent>,
 
-  mut zone_resource: ResMut<ZoneResource>
+  mut zone_resource: ResMut<ZoneResource>,
+
+  children_query: Query<&Children, With<Name> >,
+
+  zone_entity_query: Query<( &Name, &Transform)>
 
  ){
 
@@ -147,7 +154,7 @@ pub fn handle_zone_events(
 
 
 
- 		match evt {
+  match evt {
     ZoneEvent::SetZoneAsPrimary(ent) =>  {
 
     	zone_resource.primary_zone = Some(ent.clone());
@@ -158,9 +165,30 @@ pub fn handle_zone_events(
     },
     ZoneEvent::ExportZone(ent) => {
 
-    	println!("exporting zone ! {:?}", ent);
+    	let Some((zone_name_comp, _ )) = zone_entity_query.get(ent.clone()).ok() else {return};
+
+    	let zone_name :&str = zone_name_comp.as_str();
+
+    	let mut all_children :Vec<Entity> = Vec::new();
+
+    	for child in DescendantIter::new(&children_query, ent.clone()) {
+    		all_children.push(child);
+    	}
+
+    	 
 
     	//find all children ?? 
+
+    	let zone_file = ZoneFile::new(all_children,&zone_entity_query);
+
+    	let zone_file_name = format!("{}.zone.ron", zone_name);
+
+
+    	 let ron = ron::ser::to_string(&zone_file).unwrap();
+  		 let file_saved = std::fs::write(zone_file_name, ron);
+
+
+  		  println!("exported zone ! {:?}", file_saved);
 
 
 
@@ -170,7 +198,7 @@ pub fn handle_zone_events(
 
 
 
- 	}
+}
 
 
 

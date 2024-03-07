@@ -32,3 +32,8 @@ pretty-type-name = "1.0"
 bevy_mod_debugdump = "0.10"
 opener = "0.6.0"
 egui-gizmo.workspace = true
+
+
+serde = { version = "1", features = ["derive"] }
+ 
+ron = "0.8.1"

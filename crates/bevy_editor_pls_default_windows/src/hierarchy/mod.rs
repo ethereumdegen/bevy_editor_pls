@@ -197,7 +197,7 @@ impl<'a> Hierarchy<'a> {
                           world.send_event::<ZoneEvent>( ZoneEvent::SetZoneAsPrimary( entity ).into()  ) ;
                              ui.close_menu();
                         }
-                        if ui.button("Export zone").clicked() {
+                        if ui.button("Save zone file").clicked() {
                              world.send_event::<ZoneEvent>( ZoneEvent::ExportZone( entity ).into()  ) ;
                              ui.close_menu();
                             
