@@ -15,6 +15,7 @@ highlight_changes = ["bevy-inspector-egui/highlight_changes"]
 [dependencies]
 bevy = { version = "0.13", default-features = false, features = [
     "bevy_scene",
+    "bevy_gltf",
     "bevy_text",
     "bevy_ui",
     "bevy_sprite",
@@ -34,7 +35,7 @@ egui-gizmo.workspace = true
 
 bevy_mod_raycast = "0.17.0" 
 serde = { version = "1", features = ["derive"] }
- ron = "0.8.1"
+ 
 
 
  bevy_common_assets = {version="0.10.0", features= ["ron"]}
@@ -42,3 +43,5 @@ serde = { version = "1", features = ["derive"] }
  anyhow = "1.0 "
  
 bevy_mod_sysfail = "7"
+ron = "0.8.1"
+base64="0.21.6"
